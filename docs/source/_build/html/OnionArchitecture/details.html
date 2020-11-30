@@ -1,0 +1,510 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>The need to follow Architecture &#8212; Freight Rate 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p>This describes Onion Architecture as used by the Freight Rate Prototype and it’s advantages.
+We will also together build a WebApi that follows a variant of Onion Architecture so that we get to see why it is important to implement
+such an architecture in your upcoming projects. You can find the source code of this implementation on GitHub.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a very detailed page covering various aspects of Onion Architecture.</p>
+</div>
+<div class="section" id="the-need-to-follow-architecture">
+<h1>The need to follow Architecture<a class="headerlink" href="#the-need-to-follow-architecture" title="Permalink to this headline">¶</a></h1>
+<p>To maintain structural Sanity in Mid to Larger Solutions, it is always recommended to follow some kind of architecture. You must have seen most of the Open Sourced Projects having multiple layers of Projects within a complex folder structure.</p>
+<div class="section" id="layers-vs-tiers">
+<h2>Layers vs Tiers<a class="headerlink" href="#layers-vs-tiers" title="Permalink to this headline">¶</a></h2>
+<p>When there is just a logical separation in your application, we can term it as layers or N Layers. In cases where there is both a physical and logical separation of concerns, it is often referred to as n-tiered application where n is the number of separations. 3 is the most common value of N. In this article, we will deal with the Layered Architecture.</p>
+<p>This layering can help in the separation of concerns, subdividing the solution into smaller units so that each unit is responsible for a specific task and also to take advantage of abstraction. For mid to larger scaled projects where multiple teams work, layering has very obvious advantages up its sleeves. It lets a specific team or individual work on a particular layer without disturbing the integrity of the others. It makes it much easier to track changes using source control.</p>
+<p>Also, <strong>It just makes your entire solution look clean.</strong></p>
+<p>Before getting into Onion Architecture in ASP.NET Core, let’s first refresh our knowledge on N Layer Architecture.</p>
+</div>
+</div>
+<div class="section" id="brief-overview-of-n-layer-architecture">
+<h1>Brief Overview of N-Layer Architecture<a class="headerlink" href="#brief-overview-of-n-layer-architecture" title="Permalink to this headline">¶</a></h1>
+<p>Let’s look at the one of the most popular Architecture in ASP.NET Core Applications. Here is a simple diagramatic representation of a variation of the N-Layer Architecture. Presentation Layer usualy holds the Part that the User can interact with, i.e, WebApi, MVC, Webforms and so on. Business Logic is probably the most important part of this entire setup. It holds all the logics related to the Business Requirement. Now, every application ideally has it’s own dedicated Database. Inorder to access the Database, we introduce a Data Access Layer. This layer usually holds ORMs for ASP.NET to fetch/write to the database.</p>
+<a class="reference internal image-reference" href="../_images/N-Tier-Architecture.png"><img alt="../_images/N-Tier-Architecture.png" src="../_images/N-Tier-Architecture.png" style="width: 50%;" /></a>
+<div class="section" id="disadvantages-of-n-layer-architecture">
+<h2>Disadvantages of N-Layer Architecture<a class="headerlink" href="#disadvantages-of-n-layer-architecture" title="Permalink to this headline">¶</a></h2>
+<p>To clearly understand the advantages of Onion Architecture in ASP.NET Core Applications, we will need to study the issues with N Layer Architecture. It is one of the commonly used Solution Architecture amongst .NET developers.</p>
+<p>Instead of building a highly decoupled structure, we often end up with several layers that are depending on each other. This is something really bad in building scalable applications and may pose issues with the growth of the codebase. To keep it clear, in the above diagram we can see that the presentation layer depends on the logics layer, which in turn depends on the data access and so on.</p>
+<p>Thus, we would be creating a bunch of unnecessary couplings. Is it really needed? In most of the cases the UI (presentation) layer would be coupled to the Data Access Layers as well. This would defeat the purpose of having a clean architecture, yeah?</p>
+<p>In N Layer Architecture, the Database is usually the Core of the Entire Application, i.e It is the only layer that doesn’t have to depend on anything else. Any small change in the Business Logics layer or Data access layer may prove dangerous to the integrity of the entire application.</p>
+</div>
+</div>
+<div class="section" id="getting-started-with-onion-architecture">
+<h1>Getting Started with Onion Architecture<a class="headerlink" href="#getting-started-with-onion-architecture" title="Permalink to this headline">¶</a></h1>
+<p>The Onion architecture, introduced by Jeffrey Palermo, overcomes the issues of the layered architecture with great ease. With Onion Architecture, the game-changer is that the Domain Layer (Entities and Validation Rules that are common to the business case ) is at the Core of the Entire Application. This means higher flexibility and lesser coupling. In this approach, we can see that all the Layers are dependent only on the Core Layers.</p>
+<a class="reference internal image-reference" href="../_images/Onion-Architecture-In-ASP.NET-Core.png"><img alt="../_images/Onion-Architecture-In-ASP.NET-Core.png" src="../_images/Onion-Architecture-In-ASP.NET-Core.png" style="width: 50%;" /></a>
+<p>Here is how I would breakdown the structure of the proposed Solution.</p>
+<p><strong>Domain and Application Layer</strong> will be at the center of the design. We can refer to these layers at the Core Layers. These layers will not depend on any other layers.</p>
+<p>Domain Layer usually contains enterprise logic and entities. Application Layer would have Interfaces and types. The main difference is that The Domain Layer will have the types that are common to the entire enterprise, hence can be shared across other solutions as well. But the Application Layer has Application-specific types and interface. Understand?</p>
+<p>As mentioned earlier, the Core Layers will never depend on any other layer. Therefore what we do is that we create interfaces in the Application Layer and these interfaces get implemented in the external layers. This is also known and DIP or Dependency Inversion Principle.</p>
+<p>For example, If your application want’s to send a mail, We define an IMailService in the Application Layer and Implement it outside the Core Layers. Using DIP, it is easily possible to switch the implementations. This helps build scalable applications.</p>
+<p><strong>Presentation Layer</strong> is where you would Ideally want to put the Project that the User can Access. This can be a WebApi, Mvc Project, etc.</p>
+<p><strong>Infrastructure Layer</strong> is a bit more tricky. It is where you would want to add your Infrastructure. Infrastructure can be anything. Maybe an Entity Framework Core Layer for Accessing the DB, or a Layer specifically made to generate JWT Tokens for Authentication or even a Hangfire Layer. You will understand more when we start Implementing Onion Architecture in ASP.NET Core WebApi Project.</p>
+</div>
+<div class="section" id="implementing-onion-architecture-in-asp-net-core-webapi-project">
+<h1>Implementing Onion Architecture in ASP.NET Core WebApi Project<a class="headerlink" href="#implementing-onion-architecture-in-asp-net-core-webapi-project" title="Permalink to this headline">¶</a></h1>
+<p>To keep things simple but demonstrate the architecture to the fullest, we will build an ASP.NET Core Web API that is quite scalable. For this article, Let’s have a WebApi that has just one entity, Product. We will perform CRUD Operations on it while using the Onion architecture. This will give you quite a clear picture.</p>
+<p>Here is a list of features and tech we will be using for this setup.</p>
+<blockquote>
+<div><ul class="simple">
+<li>Onion Architecture</li>
+<li>Entity Framework Core</li>
+<li>.NET Core 3.1 Library / .NET Standard 2.1 Library / ASP.NET Core 3.1 WebApi</li>
+<li>Swagger</li>
+<li>CQRS / Mediator Pattern using MediatR Library</li>
+<li>Wrapper Class for Responses</li>
+<li>CRUD Operations</li>
+<li>Inverted Dependencies</li>
+<li>API Versioning</li>
+</ul>
+</div></blockquote>
+<div class="section" id="setting-up-the-solution-structure">
+<h2>Setting up the Solution Structure<a class="headerlink" href="#setting-up-the-solution-structure" title="Permalink to this headline">¶</a></h2>
+<p>We will start off by creating a Blank Solution on Visual Studio.</p>
+<a class="reference internal image-reference" href="../_images/blank.png"><img alt="../_images/blank.png" src="../_images/blank.png" style="width: 50%;" /></a>
+<p>Let’s give it a proper Name.</p>
+<a class="reference internal image-reference" href="../_images/newproject.png"><img alt="../_images/newproject.png" src="../_images/newproject.png" style="width: 50%;" /></a>
+<p>Under the Blank Solution, add 3 new folders.</p>
+<blockquote>
+<div><ul class="simple">
+<li>Core – will contain the Domain and Application layer Projects</li>
+<li>Infrastructure – will include any projects related to the Infrastructure of the ASP.NET Core 3.1 Web Api (Authentication, Persistence etc)</li>
+<li>Presentation – The Projects that are linked to the UI or API . In our case, this folder will hold the API Project.</li>
+</ul>
+</div></blockquote>
+<a class="reference internal image-reference" href="../_images/blanksolution-1.png"><img alt="../_images/blanksolution-1.png" src="../_images/blanksolution-1.png" style="width: 50%;" /></a>
+<p>Let’s start adding the required projects. Firstly, under Core Folder Add a new .NET Standard Library and name it Domain.</p>
+<p>Why .NET Standard? We know that Domain and Application Project does not depend on any other layers. Also the fact that these projects can be shared with other solutions if needed (Maybe another solution that is not .NET Core, but .NET Framework 4.7) . Get the point?</p>
+<a class="reference internal image-reference" href="../_images/domain-1024x485.png"><img alt="../_images/domain-1024x485.png" src="../_images/domain-1024x485.png" style="width: 50%;" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A wise person once said – “Delete the Default Class1 Created by Visual Studio. Always Delete them.”</p>
+</div>
+<p>After creating the Domain project, right click on properties and change the target framework to .NET Standard 2.1 (which is the latest .NET Standard version at the time of writing this article.)</p>
+<a class="reference internal image-reference" href="../_images/domainproperties-1024x476.png"><img alt="../_images/domainproperties-1024x476.png" src="../_images/domainproperties-1024x476.png" style="width: 50%;" /></a>
+<p>Similary, create another .NET Standard Library Project in the Core Folder. Name it Application. Do not forget to change the target version here as well.</p>
+<p>Next, let’s go to the Infrastructure Folder and add a layer for Database, (EFCore). This is going to be a .NET Core Library Project. We will name it Persistence.</p>
+<a class="reference internal image-reference" href="../_images/persistence-1024x531.png"><img alt="../_images/persistence-1024x531.png" src="../_images/persistence-1024x531.png" style="width: 50%;" /></a>
+<p>Finally, in the Presentation layer, add a new ASP.NET Core 3.1 WebApi Project and name it WebApi.</p>
+<a class="reference internal image-reference" href="../_images/api.png"><img alt="../_images/api.png" src="../_images/api.png" style="width: 50%;" /></a>
+<p>This is what we will be having right now. You can see the clear seperation of concerns as we have read earlier. Let’s start build up the architecture now.</p>
+<a class="reference internal image-reference" href="../_images/finalstrcuture.png"><img alt="../_images/finalstrcuture.png" src="../_images/finalstrcuture.png" style="width: 50%;" /></a>
+</div>
+<div class="section" id="adding-swagger-to-webapi-project">
+<h2>Adding Swagger To WebApi Project<a class="headerlink" href="#adding-swagger-to-webapi-project" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-tip-1 admonition">
+<p class="first admonition-title">Tip #1</p>
+<p class="last">Always use Swagger while working with WebApis. It is so much helpful to have it.</p>
+</div>
+<p>Install the Following packages ot the WebApi Project via Package Manager Console</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>Install-Package Swashbuckle.AspNetCore
+Install-Package Swashbuckle.AspNetCore.Swagger
+</pre></div>
+</div>
+<p>We will have to register Swager within the application service container. Navigate to ../Startup.cs and add these lines to the ConfigureServices method.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="cp">#region Swagger</span>
+<span class="n">services</span><span class="p">.</span><span class="n">AddSwaggerGen</span><span class="p">(</span><span class="n">c</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">IncludeXmlComments</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">@&quot;{0}\OnionArchitecture.xml&quot;</span><span class="p">,</span> <span class="n">System</span><span class="p">.</span><span class="n">AppDomain</span><span class="p">.</span><span class="n">CurrentDomain</span><span class="p">.</span><span class="n">BaseDirectory</span><span class="p">));</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">SwaggerDoc</span><span class="p">(</span><span class="s">&quot;v1&quot;</span><span class="p">,</span> <span class="k">new</span> <span class="n">OpenApiInfo</span>
+    <span class="p">{</span>
+        <span class="n">Version</span> <span class="p">=</span> <span class="s">&quot;v1&quot;</span><span class="p">,</span>
+        <span class="n">Title</span> <span class="p">=</span> <span class="s">&quot;OnionArchitecture&quot;</span><span class="p">,</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+<span class="cp">#endregion</span>
+</pre></div>
+</div>
+<p>Then, add these lines to the Configure method.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="cp">#region Swagger</span>
+<span class="c1">// Enable middleware to serve generated Swagger as a JSON endpoint.</span>
+<span class="n">app</span><span class="p">.</span><span class="n">UseSwagger</span><span class="p">();</span>
+
+<span class="c1">// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),</span>
+<span class="c1">// specifying the Swagger JSON endpoint.</span>
+<span class="n">app</span><span class="p">.</span><span class="n">UseSwaggerUI</span><span class="p">(</span><span class="n">c</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">SwaggerEndpoint</span><span class="p">(</span><span class="s">&quot;/swagger/v1/swagger.json&quot;</span><span class="p">,</span> <span class="s">&quot;OnionArchitecture&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="cp">#endregion</span>
+</pre></div>
+</div>
+<p>Next, we will need to add the XML File (For Swagger Documentaion). To do this, right click the WebApi Project and go to propeties. In the Build Tab enable the XML Documentation file and give an appropriate file name and location. I have added the xml file to the root of the API Project.</p>
+<a class="reference internal image-reference" href="../_images/xml-1024x476.png"><img alt="../_images/xml-1024x476.png" src="../_images/xml-1024x476.png" style="width: 50%;" /></a>
+<p>Make sure that the WebApi Project is selected as the Startup Project. Now Build / Run the Application and navigate to ../swagger. We have got swagger up and running.</p>
+<a class="reference internal image-reference" href="../_images/swagger-980x479.png"><img alt="../_images/swagger-980x479.png" src="../_images/swagger-980x479.png" style="width: 50%;" /></a>
+<div class="admonition-tip-2 admonition">
+<p class="first admonition-title">Tip #2</p>
+<p class="last">While running the application, you would see that it navigated to ../weatherforecast by default. This is because of launchSettings.json settings. In the WebApi Project, Properties drill down, you can find a launchsettings.json file. This file holds all the configuration required for the app launch. Change the launch URL to swagger. Thus, swagger will open up by default every time you run the application. This helps you save some time.</p>
+</div>
+<a class="reference internal image-reference" href="../_images/launch.png"><img alt="../_images/launch.png" src="../_images/launch.png" style="width: 50%;" /></a>
+</div>
+<div class="section" id="adding-the-entities-to-the-domain-project">
+<h2>Adding The Entities to the Domain Project<a class="headerlink" href="#adding-the-entities-to-the-domain-project" title="Permalink to this headline">¶</a></h2>
+<p>Now, let’s work on the Core Layers starting from the Domain Project. So what is the function of the Domain Layer? It basically has the models/entities, Exception, validation rules, Settings, and anything that is quite common throughout the solution.</p>
+<p>Let’s start by adding a BaseEntity class at Common/BaseEntity.cs in the Domain Project. This abstract class will be used as a base class for our entities.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">BaseEntity</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">int</span> <span class="n">Id</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now add a Product Class that inherits the Id from the BaseEntity. Create a new class Entities/Product.cs in the Domain Project.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Product</span> <span class="p">:</span> <span class="n">BaseEntity</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Barcode</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Description</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">decimal</span> <span class="n">Rate</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-the-required-interfaces-and-packages-in-application-layer">
+<h2>Adding the Required Interfaces And Packages in Application Layer<a class="headerlink" href="#adding-the-required-interfaces-and-packages-in-application-layer" title="Permalink to this headline">¶</a></h2>
+<p>As mentioned earlier, the Application Layer will contain the Interfaces and Types that are specific for this Application.</p>
+<p>Firstly, Add Reference to the Domain Project.</p>
+<p>Then, install the required packages via Console.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>Install-Package MediatR.Extensions.Microsoft.DependencyInjection
+Install-Package Microsoft.EntityFrameworkCore
+</pre></div>
+</div>
+<p>We have a Entity named Product. Now we need to establish this class as a Table using Entity Framework Core. So we will need a ApplicationDBContext. But the catch is that, we won’t create the actual concrete implementation of the ApplicationDbContext here in the Application Layer. Rather, we will just add a IApplicatoinDbContext Interface so that the EF Logics does not fall under the Application Layer, but goes to the Persistence layer which is outside the core,</p>
+<p>This is how you can invert the dependencies to build scalable applications. Now , the advantage is that, tommorow, you need a different implementation of the ApplicationDbContext, you don’t need to touch the existing code base, but just add another Infrastructure layer for this purpose and implement the IApplicationDbContext. As simple as that.</p>
+<p>Create a new folder Interfaces in the Application Project. Add a new interface in it, IApplicationDbContext</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span> <span class="k">interface</span> <span class="n">IApplicationDbContext</span>
+<span class="p">{</span>
+    <span class="n">DbSet</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;</span> <span class="n">Products</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="n">Task</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">SaveChanges</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is another variant that i have noticed in many huge solutions. Let’s say you have around 100 interfaces and 100 implementations. Do you add all this 100 lines of code to the Startup.cs to register them in the container? That would be insane in the maintainability point of view. To keep things clean, what we can do is, Create a DependencyInjection static Class for every layer of the solution and only add the corresponding . required services to the corresponding Class.</p>
+<p>In this way, we are decentralizing the code lines and keeping our Startup class neat and tidy. Here is an extension method over the IServiceCollection.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">DependencyInjection</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="nf">AddApplication</span><span class="p">(</span><span class="k">this</span> <span class="n">IServiceCollection</span> <span class="n">services</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">services</span><span class="p">.</span><span class="n">AddMediatR</span><span class="p">(</span><span class="n">Assembly</span><span class="p">.</span><span class="n">GetExecutingAssembly</span><span class="p">());</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here we will just Add Mediator to the service collection. We will implement Mediator pattern later in this tutorial.</p>
+<p>And all you have to do in the WebApi’s Startup class in just add one line. This essentially registers all the services associated with the Application Layer into the container. Quite handy, yeah?</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">services</span><span class="p">.</span><span class="n">AddApplication</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="implementing-mediatr-for-crud-operations">
+<h2>Implementing MediatR for CRUD Operations<a class="headerlink" href="#implementing-mediatr-for-crud-operations" title="Permalink to this headline">¶</a></h2>
+<p>In Application Layer, Create a New Folder called Features. This will have all the logics related to each Feature / Entity. Under this folder, add a new one and name it ProductFeatures. Then add a Commands and Queries folder to it.</p>
+<p>I have already written a detailed article on MediatR and CQRS pattern in ASP.NET Core 3.1 WebApi Project. You can follow that article and add the Required Commands and Handlers to the Application Layer.</p>
+<a class="reference internal image-reference" href="../_images/cqrs.png"><img alt="../_images/cqrs.png" src="../_images/cqrs.png" style="width: 50%;" /></a>
+<p>I will add the links to the source code of each file. Basically these 5 Classes would cover our CRUD Operations implementation. Make sure that you have gone through my article about CQRS for ASP.NET Core before proceeding.</p>
+<blockquote>
+<div><ul class="simple">
+<li>CreateCommand</li>
+<li>DeleteCommand</li>
+<li>UpdateCommand</li>
+<li>GetAllQuery</li>
+<li>GetByIdQuery</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="setting-up-ef-core-on-the-persistence-project">
+<h2>Setting Up EF Core on the Persistence Project<a class="headerlink" href="#setting-up-ef-core-on-the-persistence-project" title="Permalink to this headline">¶</a></h2>
+<p>Firstly, add a connection string to the appsettings.json found in the WebApi Project.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>&quot;ConnectionStrings&quot;: {
+  &quot;DefaultConnection&quot;: &quot;Server=(localdb)\\mssqllocaldb;Database=onionDb;Trusted_Connection=True;MultipleActiveResultSets=true&quot;
+}
+</pre></div>
+</div>
+<p>With the CRUD logics out of the ways, let’s setup EFCore in the Persistence Layer and try to generate a database. Install the following packages to the Persistence Project.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>Install-Package Microsoft.EntityFrameworkCore
+Install-Package Microsoft.EntityFrameworkCore.SqlServer
+</pre></div>
+</div>
+<p>Remember we created an IApplicationDBContext Interface in the Application Layer? This is where we will be implementing it. Create a new folder named Context and add a new class ApplicationDbContext. This class will implement IApplicationDBContext.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span> <span class="k">class</span> <span class="nc">ApplicationDbContext</span> <span class="p">:</span> <span class="n">DbContext</span><span class="p">,</span> <span class="n">IApplicationDbContext</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nf">ApplicationDbContext</span><span class="p">(</span><span class="n">DbContextOptions</span><span class="p">&lt;</span><span class="n">ApplicationDbContext</span><span class="p">&gt;</span> <span class="n">options</span><span class="p">)</span>
+        <span class="p">:</span> <span class="k">base</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="p">}</span>
+    <span class="k">public</span> <span class="n">DbSet</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;</span> <span class="n">Products</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">SaveChanges</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="k">base</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We will have to register IApplicationDBContext and bind it to ApplicationDbContext, right? Similar to the Application layer, we will have to create a new class just to register the dependencies and services of this layer to the service container.</p>
+<p>Add a new static class, DependencyInjection</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">DependencyInjection</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="nf">AddPersistence</span><span class="p">(</span><span class="k">this</span> <span class="n">IServiceCollection</span> <span class="n">services</span><span class="p">,</span> <span class="n">IConfiguration</span> <span class="n">configuration</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="p">&lt;</span><span class="n">ApplicationDbContext</span><span class="p">&gt;(</span><span class="n">options</span> <span class="p">=&gt;</span>
+            <span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="p">.</span><span class="n">GetConnectionString</span><span class="p">(</span><span class="s">&quot;DefaultConnection&quot;</span><span class="p">),</span>
+                <span class="n">b</span> <span class="p">=&gt;</span> <span class="n">b</span><span class="p">.</span><span class="n">MigrationsAssembly</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">ApplicationDbContext</span><span class="p">).</span><span class="n">Assembly</span><span class="p">.</span><span class="n">FullName</span><span class="p">)));</span>
+        <span class="n">services</span><span class="p">.</span><span class="n">AddScoped</span><span class="p">&lt;</span><span class="n">IApplicationDbContext</span><span class="p">&gt;(</span><span class="n">provider</span> <span class="p">=&gt;</span> <span class="n">provider</span><span class="p">.</span><span class="n">GetService</span><span class="p">&lt;</span><span class="n">ApplicationDbContext</span><span class="p">&gt;());</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>And in the Startup class/ ConfigureServices method of the WebApi Just Add the following line. You can now see the advantage of this kind of approach.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">services</span><span class="p">.</span><span class="n">AddPersistence</span><span class="p">(</span><span class="n">Configuration</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-the-migrations-and-the-database">
+<h2>Generate the Migrations and the Database<a class="headerlink" href="#generate-the-migrations-and-the-database" title="Permalink to this headline">¶</a></h2>
+<p>As our ApplicationDbContext is configured, let’s generate the migrations and ultimately create a Database using Ef Core Tools – Code First Approach.</p>
+<p>Install the following packages in the WebApi Project.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>Install-Package Microsoft.EntityFrameworkCore.Tools
+Install-Package Microsoft.EntityFrameworkCore.Design
+</pre></div>
+</div>
+<p>Now, open up the package manager console and select the Persistence project as the default prject (as mentioned in the sceenshot below.). This is because the actual ApplicationDBContext is implemented in the Persistence layer, remember?</p>
+<p>Then, run the following commands to add migrations and to generate / update the database.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>add-migration Initial
+update-database
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/pmc.png"><img alt="../_images/pmc.png" src="../_images/pmc.png" style="width: 50%;" /></a>
+<p>You will get a ‘Done’ message.</p>
+</div>
+<div class="section" id="adding-api-versioning">
+<h2>Adding API Versioning<a class="headerlink" href="#adding-api-versioning" title="Permalink to this headline">¶</a></h2>
+<p>Just to make our solution a bit more clean, let’s also add API Versioning to the WebAPI.</p>
+<p>I have written a detailed article on API Versioning in ASP.NET Core 3.1 WebApi. Feel feel to read it to get a complete idea of this concept.</p>
+<p>Install the required package.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>Install-Package Microsoft.AspNetCore.Mvc.Versioning
+</pre></div>
+</div>
+<p>In the Startup/ConfigureServices of the API project, add these lines to register the Versioning.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="cp">#region API Versioning</span>
+<span class="c1">// Add API Versioning to the Project</span>
+<span class="n">services</span><span class="p">.</span><span class="n">AddApiVersioning</span><span class="p">(</span><span class="n">config</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="c1">// Specify the default API Version as 1.0</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">DefaultApiVersion</span> <span class="p">=</span> <span class="k">new</span> <span class="n">ApiVersion</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">);</span>
+    <span class="c1">// If the client hasn&#39;t specified the API version in the request, use the default API version number</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">AssumeDefaultVersionWhenUnspecified</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+    <span class="c1">// Advertise the API versions supported for the particular endpoint</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">ReportApiVersions</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+<span class="p">});</span>
+<span class="cp">#endregion</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setting-up-the-controllers">
+<h2>Setting up the Controllers<a class="headerlink" href="#setting-up-the-controllers" title="Permalink to this headline">¶</a></h2>
+<p>This is the final step of setting up Onion Architecture In ASP.NET Core. We will have to wire up a controller to the Application Layer.</p>
+<p>Create a Base Api Controller. This will be an Empty API Controller which will have Api Versioning enabled in the Attribute and also a MediatR object. What is aim of this Base Controller? It is just to reduce the lines of code. Say, we add a new controller. We will not have to re-define the API Versioning route nor the Mediatr object. But we will just add the BaseAPI Controller as the base class. Get it? I will show it in implementation.</p>
+<p>Add new Empty API Controller in the Controllers folder and name it BaseApiController.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span> <span class="nn">MediatR</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">Microsoft.AspNetCore.Http</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">Microsoft.AspNetCore.Mvc</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">Microsoft.Extensions.DependencyInjection</span><span class="p">;</span>
+<span class="k">namespace</span> <span class="nn">WebApi.Controllers</span>
+<span class="p">{</span>
+<span class="na">    [ApiController]</span>
+<span class="na">    [Route(&quot;api/v{version:apiVersion}/[controller]</span><span class="s">&quot;)]</span>
+    <span class="k">public</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">BaseApiController</span> <span class="p">:</span> <span class="n">ControllerBase</span>
+    <span class="p">{</span>
+        <span class="k">private</span> <span class="n">IMediator</span> <span class="n">_mediator</span><span class="p">;</span>
+        <span class="k">protected</span> <span class="n">IMediator</span> <span class="n">Mediator</span> <span class="p">=&gt;</span> <span class="n">_mediator</span> <span class="p">??=</span> <span class="n">HttpContext</span><span class="p">.</span><span class="n">RequestServices</span><span class="p">.</span><span class="n">GetService</span><span class="p">&lt;</span><span class="n">IMediator</span><span class="p">&gt;();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can see that we are adding the API Versioning data to the route attribute and also creating a IMediator object.</p>
+<p>Next, let’s create our actual ENtity endpoint. Create a new folder inside the Controllers folder and name it ‘v1’. This means that this folder will contain all the Version 1 API Controllers. Read more about API Versioning to understand the need for this here.</p>
+<p>Inside the v1 Folder, add a new empty API Controller named ProductController. Since this is a very basic controller that calls the mediator object, I will not go in deep. However, I have previously written a detailed article on CQRS implementation in ASP.NET Core 3.1 API. You could go through that article which covers the same scenario. Read it here.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[ApiVersion(&quot;1.0&quot;)]</span>
+<span class="k">public</span> <span class="k">class</span> <span class="nc">ProductController</span> <span class="p">:</span> <span class="n">BaseApiController</span>
+<span class="p">{</span>
+    <span class="c1">/// &lt;summary&gt;</span>
+    <span class="c1">/// Creates a New Product.</span>
+    <span class="c1">/// &lt;/summary&gt;</span>
+    <span class="c1">/// &lt;param name=&quot;command&quot;&gt;&lt;/param&gt;</span>
+    <span class="c1">/// &lt;returns&gt;&lt;/returns&gt;</span>
+<span class="na">    [HttpPost]</span>
+    <span class="k">public</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="n">IActionResult</span><span class="p">&gt;</span> <span class="n">Create</span><span class="p">(</span><span class="n">CreateProductCommand</span> <span class="n">command</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Ok</span><span class="p">(</span><span class="k">await</span> <span class="n">Mediator</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">command</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="c1">/// &lt;summary&gt;</span>
+    <span class="c1">/// Gets all Products.</span>
+    <span class="c1">/// &lt;/summary&gt;</span>
+    <span class="c1">/// &lt;returns&gt;&lt;/returns&gt;</span>
+<span class="na">    [HttpGet]</span>
+    <span class="k">public</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="n">IActionResult</span><span class="p">&gt;</span> <span class="n">GetAll</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Ok</span><span class="p">(</span><span class="k">await</span> <span class="n">Mediator</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="k">new</span> <span class="n">GetAllProductsQuery</span><span class="p">()));</span>
+    <span class="p">}</span>
+    <span class="c1">/// &lt;summary&gt;</span>
+    <span class="c1">/// Gets Product Entity by Id.</span>
+    <span class="c1">/// &lt;/summary&gt;</span>
+    <span class="c1">/// &lt;param name=&quot;id&quot;&gt;&lt;/param&gt;</span>
+    <span class="c1">/// &lt;returns&gt;&lt;/returns&gt;</span>
+<span class="na">    [HttpGet(&quot;{id}&quot;)]</span>
+    <span class="k">public</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="n">IActionResult</span><span class="p">&gt;</span> <span class="n">GetById</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Ok</span><span class="p">(</span><span class="k">await</span> <span class="n">Mediator</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="k">new</span> <span class="n">GetProductByIdQuery</span> <span class="p">{</span> <span class="n">Id</span> <span class="p">=</span> <span class="n">id</span> <span class="p">}));</span>
+    <span class="p">}</span>
+    <span class="c1">/// &lt;summary&gt;</span>
+    <span class="c1">/// Deletes Product Entity based on Id.</span>
+    <span class="c1">/// &lt;/summary&gt;</span>
+    <span class="c1">/// &lt;param name=&quot;id&quot;&gt;&lt;/param&gt;</span>
+    <span class="c1">/// &lt;returns&gt;&lt;/returns&gt;</span>
+<span class="na">    [HttpDelete(&quot;{id}&quot;)]</span>
+    <span class="k">public</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="n">IActionResult</span><span class="p">&gt;</span> <span class="n">Delete</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Ok</span><span class="p">(</span><span class="k">await</span> <span class="n">Mediator</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="k">new</span> <span class="n">DeleteProductByIdCommand</span> <span class="p">{</span> <span class="n">Id</span> <span class="p">=</span> <span class="n">id</span> <span class="p">}));</span>
+    <span class="p">}</span>
+    <span class="c1">/// &lt;summary&gt;</span>
+    <span class="c1">/// Updates the Product Entity based on Id.</span>
+    <span class="c1">/// &lt;/summary&gt;</span>
+    <span class="c1">/// &lt;param name=&quot;id&quot;&gt;&lt;/param&gt;</span>
+    <span class="c1">/// &lt;param name=&quot;command&quot;&gt;&lt;/param&gt;</span>
+    <span class="c1">/// &lt;returns&gt;&lt;/returns&gt;</span>
+<span class="na">    [HttpPut(&quot;[action]</span><span class="s">&quot;)]</span>
+    <span class="k">public</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="n">IActionResult</span><span class="p">&gt;</span> <span class="n">Update</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">,</span> <span class="n">UpdateProductCommand</span> <span class="n">command</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">id</span> <span class="p">!=</span> <span class="n">command</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="nf">BadRequest</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nf">Ok</span><span class="p">(</span><span class="k">await</span> <span class="n">Mediator</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">command</span><span class="p">));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>That’s quite everything in this simple yet powerful implementation of Onion Architecture in ASP.NET Core. Build the application and let’s test it.</p>
+<p>Since we are already talking about a form of Clean Architecture in ASP.NET Core Applications, it would help if you read about certain tips to write clean and scalable C# Code. This knowledge will drastically improve the way you start building applications in .NET – Read the article here (20 Tips to write Clean C# Code)</p>
+</div>
+</div>
+<div class="section" id="testing">
+<h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
+<p>Run the application and open up Swagger. We will do a simple test to ensure that our solution works. I will just create a new product and make a request to query all the existing products as well.</p>
+<a class="reference internal image-reference" href="../_images/create-new-product-980x489.png"><img alt="../_images/create-new-product-980x489.png" src="../_images/create-new-product-980x489.png" style="width: 50%;" /></a>
+<a class="reference internal image-reference" href="../_images/get-all-980x489.png"><img alt="../_images/get-all-980x489.png" src="../_images/get-all-980x489.png" style="width: 50%;" /></a>
+<p>You can see that we receive the expected data.</p>
+</div>
+<div class="section" id="advantages-of-onion-architecture-in-asp-net-core">
+<h1>Advantages of Onion Architecture in ASP.NET Core<a class="headerlink" href="#advantages-of-onion-architecture-in-asp-net-core" title="Permalink to this headline">¶</a></h1>
+<p>The advantages of this designs is as follows.</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Highly Testable</strong> – Since the Core has no dependencies on anything else, writing automated tests are flexible,</li>
+<li><strong>Database Independent</strong> – Since we have a clean separation of data access, it is quite easy to switch between different database providers.</li>
+<li><strong>Switchable UI Layer</strong> (Presentation) – Since we are keeping all the crucial logics away from the presentation layer, it is quite easy to switch to another tech – including Blazor.</li>
+<li>Much Cleaner Codebase with well structured Projects for better understanding with teams.</li>
+</ul>
+</div></blockquote>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Freight Rate</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Allan Nielsen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/OnionArchitecture/details.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
