@@ -8,15 +8,22 @@ Freight Rate Prototype documentation
 
 .. toctree::
    :maxdepth: 2
+   :caption: Core Concepts
 
-   /OnionArchitecture/details 
+   /core-concepts/onion-architecture 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Modules:
+   :caption: Modules
 
-   /Currency/overview
-   /Location/overview
+   /modules/currency
+   /modules/location
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Sample Apps
+
+   /core-concepts/onion-application 
 
 
 Indices and tables

@@ -18,7 +18,7 @@ import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
-project = u'Freight Rate'
+project = u'Freight Rate Prototype'
 copyright = u'2020, Allan Nielsen'
 author = u'Allan Nielsen'
 
