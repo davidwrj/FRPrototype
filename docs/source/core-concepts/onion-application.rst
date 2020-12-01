@@ -1,8 +1,14 @@
-Sample Application
-==================
+Sample Onion Implementation
+===========================
 
-We will also build a WebApi that follows a variant of **Onion Architecture** so that we get to see why it is important to implement 
-such an architecture in your upcoming projects.   You can find the source code of this implementation on GitHub.
+We will build a WebApi that follows a variant of **Onion Architecture** so that we get to see why it is important to implement 
+such an architecture.   You can find the source code of this implementation `somewhere yet to be defined`_.
+
+.. _`somewhere yet to be defined`: https://github.com/Allann/FreightRate
+
+Another more fully implemented demonstration can be found at `Onion-DevOps-Architecture`_ which is written and maintained by Jeff.
+
+.. _`Onion-DevOps-Architecture`: https://dev.azure.com/clearmeasurelabs/Onion-DevOps-Architecture
 
 Implementing Onion Architecture in ASP.NET Core WebApi Project
 --------------------------------------------------------------
