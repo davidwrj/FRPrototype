@@ -11,6 +11,10 @@ Freight Rate Prototype documentation
    :caption: Core Concepts
 
    /core-concepts/onion-architecture 
+   /core-concepts/cqrs
+   /core-concepts/mediatr
+   /core-concepts/fluent-validation
+   /core-concepts/ef-dapper
 
 .. toctree::
    :maxdepth: 2
@@ -23,7 +27,7 @@ Freight Rate Prototype documentation
    :maxdepth: 2
    :caption: Sample Apps
 
-   /core-concepts/onion-application 
+   /samples/onion-application 
 
 
 Indices and tables
