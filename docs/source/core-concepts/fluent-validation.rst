@@ -98,6 +98,7 @@ Since we are going to validate the **CreateProductCommand** object, let’s foll
 So add a new file to the validators folder named CreateProductCommandValidator.
 
 .. code-block:: csharp
+
     public class CreateProductCommndValidator : AbstractValidator<CreateProductCommand>
     {
         public CreateProductCommndValidator()
@@ -115,6 +116,7 @@ We have n number of similar validators for each command and query. This helps ke
 Before continuing, let’s register this validator with the DI container. Navigate to Startup.cs ConfigureServices method and add in the following line.
 
 .. code-block:: csharp
+
    services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
 
 This essentially registers all the validators that are available within the current assembly.
@@ -123,6 +125,7 @@ Now that we have our validator set up, let’s add it to the pipeline behaviour.
 PipelineBehaviours. Here, add a new class, ValidationBehaviour.cs.
 
 .. code-block:: csharp
+
     public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
@@ -148,6 +151,7 @@ PipelineBehaviours. Here, add a new class, ValidationBehaviour.cs.
 We have one last thing to do. Register this pipeline behaviour in the DI container. Again, go back to Startup.cs ConfigureServices and add this.
 
 .. code-block:: csharp
+
    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
 Since we need to validate each and every request, we add it with a **Transient** scope.
