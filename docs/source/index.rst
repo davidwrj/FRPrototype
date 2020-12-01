@@ -14,7 +14,10 @@ Freight Rate Prototype documentation
    /core-concepts/cqrs
    /core-concepts/mediatr
    /core-concepts/fluent-validation
+   /core-concepts/repository-pattern
    /core-concepts/ef-dapper
+   /core-concepts/api-version
+   /core-concepts/serilog
 
 .. toctree::
    :maxdepth: 2
