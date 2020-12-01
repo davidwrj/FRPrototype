@@ -1,14 +1,10 @@
-MediatR Pipeline Behaviour – Logging and Validation
-===================================================
+MediatR
+=======
 
-In `the article`_, we learn about **CQRS** and the usage of the **MediatR** library. Here, let’s see how to take advantage of this library to the maximum.
-
-.. _`the article`: cqrs
+**MediatR** is a library which essentially can make your controllers thin and decouple the functionality to a more message-driven approach. 
+This is generally coupled with an implementation of the **CQRS** pattern which is Command Query Responsibility Segregation.
 
 The idea of pipelines, *MediatR Pipeline Behaviour*, how to intersect the pipeline and add various services like Logging and Validations are going to be covered here.
-
-To clarify, **MediatR** is a tool/library which essentially can make your controllers thin and decouple the functionality to a more message-driven approach. 
-This is generally coupled with an implementation of the **CQRS** pattern which is Command Query Responsibility Segregation.
 
 Pipelines – Overview
 --------------------

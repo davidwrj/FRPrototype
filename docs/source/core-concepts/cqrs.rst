@@ -1,5 +1,5 @@
-CQRS with MediatR
-=================
+CQRS
+====
 
 In this article let’s talk about **CQRS** and it’s implementation along with **MediatR** and **Entity Framework Core** using a code first approach. 
 I will implement this pattern on a WebApi Project. The source code of this sample is linked at the end of the post. Of the several design patterns available, 
