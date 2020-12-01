@@ -46,3 +46,112 @@ logic like it is supposed to be. Also, better control of validation is something
 `Fluent Validation`_ uses lamba expressions to build validation rules.
 
 .. _`Fluent Validation`: https://docs.fluentvalidation.net/en/latest/
+
+Fluent Validations with MediatR
+-------------------------------
+
+For validating our MediatR requests, we will use the Fluent Validation library.
+Let use the following use case as an example: 
+
+.. admonition:: Use Case
+
+   We have an API endpoint that is responsible for creating a product in the database from 
+   the request object that includes product name, prices, barcode and so on. 
+   But we would want to validate this request in the pipeline itself.
+
+Here are the MediatR Request and Handler
+
+.. code-block:: csharp
+
+    public class CreateProductCommand : IRequest<int>
+    {
+        public string Name { get; set; }
+        public string Barcode { get; set; }
+        public string Description { get; set; }
+        public decimal BuyingPrice { get; set; }
+        public decimal Rate { get; set; }
+
+        public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, int>
+        {
+            private readonly IApplicationContext _context;
+            public CreateProductCommandHandler(IApplicationContext context)
+            {
+                _context = context;
+            }
+            public async Task<int> Handle(CreateProductCommand command, CancellationToken cancellationToken)
+            {
+                var product = new Product();
+                product.Barcode = command.Barcode;
+                product.Name = command.Name;
+                product.BuyingPrice = command.BuyingPrice;
+                product.Rate = command.Rate;
+                product.Description = command.Description;
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+                return product.Id;
+            }
+        }
+    }
+
+Add a new folder to the root of our application and name it *Validators*. Here is where we are going to add all the validators related to the domain. 
+Since we are going to validate the **CreateProductCommand** object, let’s follow convention and name our validator **CreateProductCommandValidator**. 
+So add a new file to the validators folder named CreateProductCommandValidator.
+
+.. code-block:: csharp
+    public class CreateProductCommndValidator : AbstractValidator<CreateProductCommand>
+    {
+        public CreateProductCommndValidator()
+        {
+            RuleFor(c => c.Barcode).NotEmpty();
+            RuleFor(c => c.Name).NotEmpty();
+        }
+    }
+
+We will keep things simple for this article. We create 2 rules,  checking if the Name and Barcode numbers are not empty. 
+You could take this a step further by injecting a DbContext to this constructor and chack if the barcode already exists. 
+
+We have n number of similar validators for each command and query. This helps keep the code well organized and easy to test.
+
+Before continuing, let’s register this validator with the DI container. Navigate to Startup.cs ConfigureServices method and add in the following line.
+
+.. code-block:: csharp
+   services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
+
+This essentially registers all the validators that are available within the current assembly.
+
+Now that we have our validator set up, let’s add it to the pipeline behaviour. Create another new folder in the root of the application and name it 
+PipelineBehaviours. Here, add a new class, ValidationBehaviour.cs.
+
+.. code-block:: csharp
+    public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+    {
+        private readonly IEnumerable<IValidator<TRequest>> _validators;
+
+        public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators)
+        {
+            _validators = validators;
+        }
+
+        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        {
+            if (!_validators.Any())
+                return await next();
+
+            var context = new ValidationContext<TRequest>(request);
+            var validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+            var failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();
+            if (failures.Count != 0)            
+                throw new FluentValidation.ValidationException(failures);
+        }
+    }
+
+We have one last thing to do. Register this pipeline behaviour in the DI container. Again, go back to Startup.cs ConfigureServices and add this.
+
+.. code-block:: csharp
+   services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+
+Since we need to validate each and every request, we add it with a **Transient** scope.
+
+That’s it, quite simple to setup.
+
+
