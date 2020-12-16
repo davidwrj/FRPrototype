@@ -9,12 +9,12 @@ principals he teaches.
 Uncle Bob's Clean Code lessons
 ------------------------------
 
-`Lesson 1`_
-`Lesson 2`_
-`Lesson 3`_
-`Lesson 4`_
-`Lesson 5`_
-`Lesson 6`_
+ * `Lesson 1`_
+ * `Lesson 2`_
+ * `Lesson 3`_
+ * `Lesson 4`_
+ * `Lesson 5`_
+ * `Lesson 6`_
 
 .. _`Lesson 1`: https://youtu.be/7EmboKQH8lM
 .. _`Lesson 2`: https://youtu.be/2a_ytyt9sf8
