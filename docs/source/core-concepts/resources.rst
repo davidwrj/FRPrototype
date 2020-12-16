@@ -9,19 +9,12 @@ principals he teaches.
 Uncle Bob's Clean Code lessons
 ------------------------------
 
- * `Lesson 1`_
- * `Lesson 2`_
- * `Lesson 3`_
- * `Lesson 4`_
- * `Lesson 5`_
- * `Lesson 6`_
-
-.. _`Lesson 1`: https://youtu.be/7EmboKQH8lM
-.. _`Lesson 2`: https://youtu.be/2a_ytyt9sf8
-.. _`Lesson 3`: https://youtu.be/Qjywrq2gM8o
-.. _`Lesson 4`: https://youtu.be/58jGpV2Cg50
-.. _`Lesson 5`: https://youtu.be/sn0aFEMVTpA
-.. _`Lesson 6`: https://youtu.be/l-gF0vDhJVI
+.. youtube:: 7EmboKQH8lM
+.. youtube:: 2a_ytyt9sf8
+.. youtube:: Qjywrq2gM8o
+.. youtube:: 58jGpV2Cg50
+.. youtube:: sn0aFEMVTpA
+.. youtube:: l-gF0vDhJVI
 
 .. admonition:: My favourite quote from all these lessons
    "You know you are working on clean code when each routine you read turns out to be pretty much what you expected..." by Ward Cunningham
