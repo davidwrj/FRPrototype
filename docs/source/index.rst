@@ -18,6 +18,7 @@ Freight Rate Prototype documentation
    /core-concepts/ef-dapper
    /core-concepts/api-version
    /core-concepts/serilog
+   /core-concepts/resources.rst
 
 .. toctree::
    :maxdepth: 2
