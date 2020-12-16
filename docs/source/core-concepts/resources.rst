@@ -16,6 +16,6 @@ Uncle Bob's Clean Code lessons
 .. youtube:: sn0aFEMVTpA
 .. youtube:: l-gF0vDhJVI
 
-.. admonition:: My favourite quote from all these lessons
+.. note:: My favourite quote from all these lessons
    "You know you are working on clean code when each routine you read turns out to be pretty much what you expected..." by Ward Cunningham
 
