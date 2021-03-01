@@ -92,7 +92,7 @@ Here is how I would breakdown the structure of the proposed solution.
 Domain and Application Layers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Will be at the center of the design. We can refer to these layers at the *Core Layers*. These layers will not depend on any other layers.
+Will be at the center of the design. We can refer to these layers as the *Core Layers*. These layers will not depend on any other layers.
 
 The **Domain Layer** usually contains the domain knowledge and behaviours. **Application Layer** would have interfaces and types. 
 
